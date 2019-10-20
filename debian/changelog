@@ -1,4 +1,4 @@
-chroot-rescue (0.1.8) unstable; urgency=medium
+chroot-rescue (0.1.8+1) unstable; urgency=medium
 
   * added nuke-modules option
 

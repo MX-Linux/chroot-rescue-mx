@@ -8,8 +8,7 @@ Homepage: https://gitlab.com/antiX-Linux/chroot-rescue
 
 Package: chroot-rescue-mx
 Depends: cli-shell-utils
-Conflicts: chroot-rescue
-Replaces: chroot-rescue
+Breaks: chroot-rescue
 Provides: chroot-rescue
 Architecture: all
 Description: Chroot into a Linux file system to perform repairs or to poke around
