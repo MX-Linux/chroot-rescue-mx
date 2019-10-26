@@ -1,3 +1,15 @@
+chroot-rescue (0.1.10) mx; urgency=medium
+
+  * update to scan for more filesystems
+
+ -- Dolphin Oracle <dolphinoracle@gmail.com>  Sat, 26 Oct 2019 13:10:26 -0400
+
+chroot-rescue (0.1.9) mx; urgency=medium
+
+  * update for lsblk bug 
+
+ -- Dolphin Oracle <dolphinoracle@gmail.com>  Thu, 24 Oct 2019 17:12:43 -0400
+
 chroot-rescue (0.1.8+1) unstable; urgency=medium
 
   * added nuke-modules option
