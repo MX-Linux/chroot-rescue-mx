@@ -1,3 +1,9 @@
+chroot-rescue (0.1.11) mx; urgency=medium
+
+  * update to latest antiX upstream scripts
+
+ -- Dolphin Oracle <dolphinoracle@gmail.com>  Sun, 05 Jan 2020 18:30:30 -0500
+
 chroot-rescue (0.1.10) mx; urgency=medium
 
   * update to scan for more filesystems
