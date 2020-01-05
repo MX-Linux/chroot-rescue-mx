@@ -6,8 +6,8 @@
 # Thanks to fehlix for help, ideas and, testing!
 #==============================================================================
 
-      VERSION="1.01"
- VERSION_DATE="Tue 20 Aug 2019 04:00:15 AM MDT"
+      VERSION="1.05"
+ VERSION_DATE="Fri 08 Nov 2019 11:38:17 AM MST"
 
 ME=${0##*/}
 
@@ -22,12 +22,13 @@ SUB_DIRS="sys proc dev run tmp"
 
 MY_ENV="HOME=/root"
 
-WORK_DIR=/run/$ME
+WORK_DIR=/tmp/$ME
 
 # On host
+HOST_DIR="/tmp/$ME"
 LOCK_FILE="/run/lock/$ME"
-MY_RESOLV_DIR=$WORK_DIR/resolvconf
-MY_HOSTNAME_FILE=$WORK_DIR/hostname
+MY_RESOLV_DIR=$HOST_DIR/resolvconf
+MY_HOSTNAME_FILE=$HOST_DIR/hostname
 
 # On target
 CNT_FNAME="$WORK_DIR-count"
@@ -46,7 +47,7 @@ usage() {
     cat<<Usage
 Usage: $ME [options] <directory>  [[--] <command> [<args>]]
 Bind mount sys/, proc/, dev/, etc file systems and under <directory>.
-Mount run/ and tmp/ as tmpfs and then chroot into that directory using
+Mount tmp/ as tmpfs and then chroot into that directory using
 a given command or /bin/bash or /bin/sh as defaults.
 
 If <command> is given we try to find that command under the directory
@@ -119,15 +120,17 @@ main() {
     local SHIFT SHORT_STACK="hnNpPtuVv" got_cmd
 
     read_params "$@"
-    shift $SHIFT
+    run_me_as_root "$@"
+    HOME=/root
 
+    shift $SHIFT
     [ $# -eq 0 ] && fatal $"Expected a directory or device name"
+
     local dir=${1%/} ; shift
     CHROOT_DIR=$dir
 
     : ${ADD_PROMPT:=(\\[$cyan\\]$dir\\[$nc_co\\]) \\[$green\\]\\d \\t \\[$magenta\\]\\w\\[$nc_co\\]}
 
-    [ "$(id -u)" -eq 0 ] || fatal $"The %s program must be run as root" "$(wq $ME)"
     HOME=/root
 
     local cmd
@@ -151,7 +154,7 @@ main() {
 
     # We need this in add_resolvconf() as well as the main event
     SET_ARCH=linux32
-    test -d "$dir/lib64" && SET_ARCH=linux64
+    ls "$dir"/lib64/ld-linux-x86-64.so* &>/dev/null && SET_ARCH=linux64
 
     test -d "$dir" || fatal $"%s is not a directory" "$(wq $dir)"
 
@@ -191,8 +194,8 @@ main() {
     CNT_FILE="$dir/$CNT_FNAME"
     start_lock "$LOCK_FILE" "$CNT_FILE"
 
-    TO_RMDIR="$WORK_DIR"
-    cmd mkdir -p $WORK_DIR
+    TO_RMDIR="$HOST_DIR"
+    cmd mkdir -p "$HOST_DIR"
 
     local rc_args
     if [ -z "$WAS_LOCKED" ]; then
@@ -215,12 +218,21 @@ main() {
 
             case $s in
                 run) cmd mount -t tmpfs -o size=100m,nodev,mode=755 tmpfs "$targ" ;;
+                #run) cmd mount --rbind /$s "$targ"                                ;;
                 tmp) cmd mount -t tmpfs -o size=20%,nodev,mode=1777 tmpfs "$targ" ;;
-            sys|dev) cmd mount --rbind --make-rslave /$s "$targ"                 ;;
-                  *) cmd mount --rbind /$s "$targ" ;;
+            sys|dev) cmd mount --rbind --make-rslave /$s "$targ"                  ;;
+                  *) cmd mount --rbind /$s "$targ"                                ;;
             esac
             is_mountpoint "$targ" && TO_UMOUNT="$targ\n$TO_UMOUNT"
         done
+
+        # Bind mount /run/udev to get lsblk working correctly in the target
+        local udev_dir=/run/udev
+        if test -d $udev_dir; then
+            targ="$dir$udev_dir"
+            mkdir -p "$targ"
+            cmd mount --rbind $udev_dir "$targ"
+        fi
 
         [ -z "$NO_NETWORK" ] && add_resolvconf "$dir"
 
@@ -270,7 +282,7 @@ main() {
 }
 
 #------------------------------------------------------------------------------
-# Create a bashrc file under $CHROOT/run/ that will be sourced when the bash
+# Create a bashrc file under $CHROOT/tmp/ that will be sourced when the bash
 # shell starts.  This allows is to set the prompt in the chroot.
 #------------------------------------------------------------------------------
 create_bashrc() {
@@ -290,8 +302,23 @@ test -r ~/.bashrc && source ~/.bashrc
 alias ls="ls --color=auto -F"
 alias ll="ls --color=auto -lhF"
 alias la="ls --color=auto -FA"
+
+alias halt="exit;"
+alias shutdown="exit;"
+alias poweroff="exit;"
+alias reboot="exit;"
+
 PS1="$ps1"
+
 Bashrc
+
+    # If there is only one kernel then we may was well specify it
+    local kernel=$(ls $dir/lib/modules/)
+    [ "$(echo "$kernel" | wc -l)" = 1 ] || return 0
+    cat<<Mod_Probe >> "$file"
+alias modprobe="modprobe -S $kernel"
+Mod_Probe
+
     return 0
 }
 
@@ -392,8 +419,8 @@ stop_lock() {
 #------------------------------------------------------------------------------
 copy_in_xauthority() {
     local dir=$1
-    [ -n "$DISPLAY" -a -n "$XAUTHORITY" -a -e "$dir/run" ] || return 1
-    [ "$(fs_type "$dir/run")" = tmpfs ] || return 1
+    [ -n "$DISPLAY" -a -n "$XAUTHORITY" -a -e "$dir/tmp" ] || return 1
+    [ "$(fs_type "$dir/tmp")" = tmpfs ] || return 1
 
     local xauth_file=$(readlink -f "$XAUTHORITY")
     test -f "$xauth_file" || return 1
@@ -760,6 +787,22 @@ pause_exit() {
     say $"Please press %s to exit" "$(pq "<Enter>")"
     local ans
     read ans
+}
+
+#------------------------------------------------------------------------------
+# Issue a simple fatal error if we are not running as root
+#------------------------------------------------------------------------------
+need_root() {
+    [ $(id -u) -eq 0 ] || fatal 099 $"This script must be run as root"
+}
+
+#------------------------------------------------------------------------------
+# run ME as root (thanks fehlix!)
+#------------------------------------------------------------------------------
+run_me_as_root() {
+    [ $(id -u) -eq 0 ] && return
+    sudo -nv &>/dev/null || warn $"This script must be run as root"
+    exec sudo -p $"Please enter your user password: " "$0" "$@" || need_root
 }
 
 #------------------------------------------------------------------------------

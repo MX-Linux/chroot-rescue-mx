@@ -7,8 +7,8 @@
 # Thanks to fehlix for help, ideas, and testing!
 #==============================================================================
 
-     VERSION="1.05"
- VERSION_DATE="Fri 25 Oct 2019 07:40:33 PM MDT"
+     VERSION="1.06"
+ VERSION_DATE="Mon 04 Nov 2019 10:08:45 PM MST"
 
           TOP_DIR="/media"
   GRAPHICAL_MENUS="true"
@@ -380,7 +380,7 @@ human_size() {
 # Eiher 32-bit or 64-bit based on finding the /lib64 directory
 #------------------------------------------------------------------------------
 get_arch() {
-    if test -d "$dir/lib64"; then
+    if ls "$dir"/lib64/ld-linux-x86-64.so* &> /dev/null; then
         echo "64-bit"
     else
         echo "32-bit"
