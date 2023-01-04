@@ -1,3 +1,9 @@
+chroot-rescue (0.1.12) mx; urgency=medium
+
+  * update to 1.07 plus fixes
+
+ -- Dolphin Oracle <dolphinoracle@gmail.com>  Tue, 03 Jan 2023 22:52:56 -0500
+
 chroot-rescue (0.1.11) mx; urgency=medium
 
   * update to latest antiX upstream scripts

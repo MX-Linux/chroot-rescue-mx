@@ -7,8 +7,8 @@
 # Thanks to fehlix for help, ideas, and testing!
 #==============================================================================
 
-     VERSION="1.06"
- VERSION_DATE="Mon 04 Nov 2019 10:08:45 PM MST"
+     VERSION="1.07"
+ VERSION_DATE="Wed Dec 23 01:19:04 PM MST 2020"
 
           TOP_DIR="/media"
   GRAPHICAL_MENUS="true"
@@ -26,7 +26,7 @@ CHROOT_CMD="chroot-rescue"
 DEFAULT_DISTRO_NAME="Linux"
 MAX_DISTRO_WIDTH=40
 
-MAJOR_DEV_LIST="3,8,22,179,202,254,259"
+MAJOR_DEV_LIST="3,8,22,179,202,253,254,259"
 
 TO_RMDIR=
 TO_UMOUNT=
@@ -173,7 +173,9 @@ main() {
 
     # Let non-root users get usage.  Need to get --ignore-config early.
     read_early_params "$@"
-    #need_root
+
+    run_me_as_root "$@"
+
     read_params "$@"
 
     set_colors $COLOR_SCHEME
@@ -185,8 +187,6 @@ main() {
 
     shift $SHIFT
     fatal_n0 $# $"Extra command line parameters %s" "$*"
-
-    need_root
 
     case $(uname -m) in
           i686) ONLY_32_BIT=true ;;
@@ -800,6 +800,7 @@ scan_devices() {
         esac
 
         local dev="/dev/$NAME"
+        LABEL=${LABEL// /_}  # replace spaces with underscore
         local mntpnt=$(unique_mp "$NAME" "$LABEL")
 
         if [ -n "$MOUNTPOINT" ]; then
@@ -883,7 +884,7 @@ unique_mp() {
 # Function: first_free_mp <subdir>
 #
 # Try to use <subdir> to form a valid mountpoint.  If <subdir> fails then
-# keep trying by append "-2" up to "-9".  On success echo the complete
+# keep trying by append "_1" up to "_9".  On success echo the complete
 # mountpoint and return true otherwise echo nothing and return false.
 #------------------------------------------------------------------------------
 first_free_mp() {
@@ -892,8 +893,8 @@ first_free_mp() {
     [ -z "$subdir" ]   && return 1
     can_use_mp $subdir && return 0
 
-    for i in $(seq 2 9); do
-        can_use_mp "$subdir-$i" && return 0
+    for i in $(seq 1 9); do
+        can_use_mp "${subdir}_$i" && return 0
     done
     return 1
 }
@@ -925,7 +926,7 @@ can_use_mp() {
     # Create trial mntpnt with bad chars converted to underscore
     local mp="${TOP_DIR%/}/$(printf %s "$1" | sed -r s'=(\s|[_/])+=_=g')"
     # If it is already in use return failure
-    is_mountpoint -q $mp && return 1
+    is_mountpoint $mp && return 1
 
     # Success!
     echo $mp
