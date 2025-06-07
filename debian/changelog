@@ -1,4 +1,4 @@
-chroot-rescue (0.2.6+2mx25) mx; urgency=medium
+chroot-rescue (0.2.6+2) mx; urgency=medium
 
   * move away from /usr/local
 
