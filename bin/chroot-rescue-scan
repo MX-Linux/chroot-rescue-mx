@@ -20,7 +20,7 @@
 MY_LIB_DIR=$(readlink -f "$MY_DIR/../cli-shell-utils")
 MY_LIB_DIR_2=$(readlink -f "$MY_DIR/../../cli-shell-utils")
 LIB_DIR="/usr/lib/cli-shell-utils"
-   if ( -d "/usr/local/lib/cli-shell-utils" ); then
+   if [ -d "/usr/local/lib/cli-shell-utils" ]; then
        LIB_DIR="/usr/local/lib/cli-shell-utils"
    fi
  SHELL_LIB="cli-shell-utils.bash"
