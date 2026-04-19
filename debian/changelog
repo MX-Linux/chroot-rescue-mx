@@ -1,3 +1,10 @@
+chroot-rescue (0.2.6+3) mx; urgency=medium
+
+  * add virtual block device major number (252)
+  * add TryExec to desktop file
+
+ -- fehlix <fehlix@mxlinux.org>  Sat, 18 Apr 2026 17:01:41 -0400
+
 chroot-rescue (0.2.6+2) mx; urgency=medium
 
   * move away from /usr/local
