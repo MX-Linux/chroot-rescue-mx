@@ -1,3 +1,14 @@
+chroot-rescue (0.2.6+4) mx; urgency=medium
+
+  * Add btrfs subvolume detection with or without luks encryption.
+  * Expand detection for “/@” root subvolumes, as used by Ubuntu, Debian,
+  antiX, MX Linux, Arch and its derivatives, openSUSE, and Fedora/RHEL,
+  by custom patterns (@rootfs, root, rootfs, ROOT) as well as the top level.
+  * Warn when LUKS mapper name does not match crypttab, to prevent from becoming
+  unbootable after installing kernel, DKMS package, or updating initramfs.
+
+ -- fehlix <fehlix@mxlinux.org>  Fri, 24 Apr 2026 18:58:29 -0400
+
 chroot-rescue (0.2.6+3) mx; urgency=medium
 
   * add virtual block device major number (252)
