@@ -1,3 +1,9 @@
+chroot-rescue (0.2.6+6) mx; urgency=medium
+
+  * add translations to desktop file
+
+ -- Dolphin Oracle <dolphinoracle@gmail.com>  Mon, 19 Oct 2026 20:30:05 -0400
+
 chroot-rescue (0.2.6+5) mx; urgency=medium
 
   * Add btrfs subvolume detection to chroot-rescue-select.
