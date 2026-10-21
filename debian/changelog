@@ -1,8 +1,8 @@
 chroot-rescue (0.2.6+6) mx; urgency=medium
 
-  * add translations to desktop file
+  * add translations to desktop file 
 
- -- Dolphin Oracle <dolphinoracle@gmail.com>  Mon, 19 Oct 2026 20:30:05 -0400
+ -- Dolphin Oracle <dolphinoracle@gmail.com>  Tue, 20 Oct 2026 20:21:23 -0400
 
 chroot-rescue (0.2.6+5) mx; urgency=medium
 
