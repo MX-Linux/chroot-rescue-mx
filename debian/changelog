@@ -1,8 +1,18 @@
 chroot-rescue (0.2.6+6) mx; urgency=medium
 
-  * add translations to desktop file 
+  * add translations to desktop file  
+  * Fix boolean value: NoDisplay=False -> NoDisplay=false.
+  * Categories: MX-Maintenance -> X-MX-Maintenance.
+  * Shorten Name[de], GenericName[de], Name[pt_BR], GenericName[pt_BR]
+    to "Chroot Rescue Scan"; drop redundant "system repair" wording.
+  * Add Keywords= and translated Keywords[*] taken from antiX
+    reservoir desktop file.
+  * Fix Comment[kn] and Comment[te]: literal text "u200c" replaced by
+    the real U+200C (zero width non-joiner) character.
+  * Sort Name, Comment, GenericName and Keywords: default entry first,
+    then localized entries sorted by locale.
 
- -- Dolphin Oracle <dolphinoracle@gmail.com>  Tue, 20 Oct 2026 20:21:23 -0400
+ -- Dolphin Oracle <dolphinoracle@gmail.com>  Wed, 21 Oct 2026 19:30:29 -0400
 
 chroot-rescue (0.2.6+5) mx; urgency=medium
 
